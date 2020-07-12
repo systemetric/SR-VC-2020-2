@@ -1,0 +1,7 @@
+Team 2 problems:
+
+The robot is slow to move to cube when not aligned with it properly
+If the robot drops the cube, it won't go back for it (as in it thinks it has got the cube but has then dropped it)
+The robot will only go for 2 distinct silver cubes - path finding algorithms may be needed if it is to pick up more ground based silver cubes
+The robot can't align well with a cube at an angle. It will fail to pick this cube up especially if at 45 degree angle to it
+At the start, the offset to align the robot with the first silver cube can vary from barely any movement to turning it into a wall.
