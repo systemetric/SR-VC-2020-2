@@ -2,28 +2,34 @@ from sr.robot import *
 from typing import Union, Tuple
 
 main_cubes = [[47, 45], [45, 46], [46, 44], [44, 47]]
-#return_markers = [27, 6, 13, 21] initially so it didn't push first cube out of zone when going for second but now can't see start zone so drops in opponent zone
+# return_markers = [27, 6, 13, 21] initially so it didn't push first cube out of zone when going for second but now can't see start zone so drops in opponent zone
 return_markers = [[27, 0], [6, 7], [13, 14], [20, 21]]
 seek_markers = [20, 27, 6, 13]
 e = 2.718
 
+
 def signum(x):
     if x < 0:
-        return - 1
+        return -1
     return 1
+
 
 # sigmoid function. Has range (0, 1) and changes most between the domain of -4 to 4
 def Sigmoid(x):
-    return 1/(1 + e ** -x)
+    return 1 / (1 + e**-x)
+
 
 class VirtualBot(Robot):
-
     def __init__(self):
         super().__init__()
         self.have_cube = False
         self.direction = 0
-        self.largest_angle = 5.0 # the angle where the robot becomes most sensitive to a change in angle.
-        self.motor_turn_max = 5 # max power motors will turn at in turn to marker or turn to markers function
+        self.largest_angle = (
+            # the angle where the robot becomes most sensitive to a change in angle.
+            5.0)
+        self.motor_turn_max = (
+            5  # max power motors will turn at in turn to marker or turn to markers function
+        )
 
     def digitalReadRuggeduino(self, pin: int) -> bool:
         return self.ruggeduinos[0].digital_read(pin)
@@ -137,7 +143,9 @@ class VirtualBot(Robot):
         R.have_cube = False
 
     def find_marker(self, code: int, markers=None):
-        """Returns the marker object that has the given code if not returns None.
+        """Returns the marker object that has the given code if not returns
+        None.
+
         The list of markers can be given if not R.see() will be used.
         """
         if markers == None:
@@ -148,7 +156,9 @@ class VirtualBot(Robot):
         return None
 
     def find_markers(self, codes, markers=None):
-        """Returns the marker object that has the given code if not returns None.
+        """Returns the marker object that has the given code if not returns
+        None.
+
         The list of markers can be given if not R.see() will be used.
         """
         if markers == None:
@@ -160,17 +170,24 @@ class VirtualBot(Robot):
 
     def turn_to_marker(self, code: int, epsilon: int = 2):
         """Turns to the marker of the given code and returns its object.
-        Returns None if the cube cannot be seen.
-        Epsilon is the accuracy at which the robot should be facing the marker at.
-        e.g. When epsilon is 1 the angle the robot is facing when this function exits will be less than 1 but greater than -1."""
+
+        Returns None if the cube cannot be seen. Epsilon is the accuracy
+        at which the robot should be facing the marker at. e.g. When
+        epsilon is 1 the angle the robot is facing when this function
+        exits will be less than 1 but greater than -1.
+        """
         m = self.find_marker(code)
         if m is None:
-            print(f"HR Team 2 in zone {self.zone}: ERROR: Cannot see marker {code}")
+            print(
+                f"HR Team 2 in zone {self.zone}: ERROR: Cannot see marker {code}"
+            )
             return None
         times = 0
         while not (-epsilon < m.rot_y and m.rot_y < epsilon) and times < 20:
             self.direction = signum(m.rot_y)
-            self.turn(self.direction * (Sigmoid(8 * (abs(m.rot_y)/ self.largest_angle) - 4) * self.motor_turn_max)) 
+            self.turn(self.direction *
+                      (Sigmoid(8 * (abs(m.rot_y) / self.largest_angle) - 4) *
+                       self.motor_turn_max))
             self.sleep(0.00125)
             self.stopDriveMotors()
             self.setDriveMotors(10)
@@ -179,7 +196,9 @@ class VirtualBot(Robot):
             times += 1
             m = self.find_marker(code)
             if m is None:
-                print(f"HR Team 2 in zone {self.zone}: ERROR: Can no longer see marker {code}")
+                print(
+                    f"HR Team 2 in zone {self.zone}: ERROR: Can no longer see marker {code}"
+                )
                 return None
 
         print(f"HR Team 2 in zone {self.zone}: Done, at degree: {m.rot_y}")
@@ -187,17 +206,24 @@ class VirtualBot(Robot):
 
     def turn_to_markers(self, codes, epsilon: int = 2):
         """Turns to the marker of the given code and returns its object.
-        Returns None if the cube cannot be seen.
-        Epsilon is the accuracy at which the robot should be facing the marker at.
-        e.g. When epsilon is 1 the angle the robot is facing when this function exits will be less than 1 but greater than -1."""
+
+        Returns None if the cube cannot be seen. Epsilon is the accuracy
+        at which the robot should be facing the marker at. e.g. When
+        epsilon is 1 the angle the robot is facing when this function
+        exits will be less than 1 but greater than -1.
+        """
         m = self.find_markers(codes)
         if m is None:
-            print(f"HR Team 2 in zone {self.zone}: ERROR: Cannot see marker a marker in {codes}")
+            print(
+                f"HR Team 2 in zone {self.zone}: ERROR: Cannot see marker a marker in {codes}"
+            )
             return None
         times = 0
         while not (-epsilon < m.rot_y and m.rot_y < epsilon) and times < 20:
             self.direction = signum(m.rot_y)
-            self.turn(self.direction * (Sigmoid(8 * (abs(m.rot_y)/ self.largest_angle) - 4) * self.motor_turn_max))
+            self.turn(self.direction *
+                      (Sigmoid(8 * (abs(m.rot_y) / self.largest_angle) - 4) *
+                       self.motor_turn_max))
             self.sleep(0.00125)
             self.stopDriveMotors()
             self.setDriveMotors(10)
@@ -206,15 +232,26 @@ class VirtualBot(Robot):
             times += 1
             m = self.find_markers(codes)
             if m is None:
-                print(f"HR Team 2 in zone {self.zone}: ERROR: Can no longer see marker in {codes}")
+                print(
+                    f"HR Team 2 in zone {self.zone}: ERROR: Can no longer see marker in {codes}"
+                )
                 return None
 
         print(f"HR Team 2 in zone {self.zone}: Done, at degree: {m.rot_y}")
         return m
 
-    def seek_marker(self, code: int, power: int = 10, default_power: int = 10, repeats: int = None, interval: float = 0.02):
-        """Turns until the marker is found. Power to turn at and number of turns can be given.
-        If repeats is None it will keep going forever until the marker is found.
+    def seek_marker(
+        self,
+        code: int,
+        power: int = 10,
+        default_power: int = 10,
+        repeats: int = None,
+        interval: float = 0.02,
+    ):
+        """Turns until the marker is found.
+
+        Power to turn at and number of turns can be given. If repeats is
+        None it will keep going forever until the marker is found.
         """
         m = self.find_marker(code)
         while m is None:
@@ -223,19 +260,29 @@ class VirtualBot(Robot):
             else:
                 self.turn(default_power)
             self.sleep(interval)
-            #self.stopDriveMotors()
+            # self.stopDriveMotors()
             if repeats is not None:
                 repeats -= 1
                 if repeats <= 0:
                     print(
-                        f"HR Team 2 in zone {self.zone}: ERROR: Could not find marker {code} with in alloted steps")
+                        f"HR Team 2 in zone {self.zone}: ERROR: Could not find marker {code} with in alloted steps"
+                    )
                     break
             m = self.find_marker(code)
         return
 
-    def seek_markers(self, codes, power: int = 10, default_power: int = 10, repeats: int = None, interval: float = 0.02):
-        """Turns until the marker is found. Power to turn at and number of turns can be given.
-        If repeats is None it will keep going forever until the marker is found.
+    def seek_markers(
+        self,
+        codes,
+        power: int = 10,
+        default_power: int = 10,
+        repeats: int = None,
+        interval: float = 0.02,
+    ):
+        """Turns until the marker is found.
+
+        Power to turn at and number of turns can be given. If repeats is
+        None it will keep going forever until the marker is found.
         """
         m = self.find_markers(codes)
         while m is None:
@@ -244,18 +291,31 @@ class VirtualBot(Robot):
             else:
                 self.turn(power)
             self.sleep(interval)
-            #self.stopDriveMotors()
+            # self.stopDriveMotors()
             if repeats is not None:
                 repeats -= 1
                 if repeats <= 0:
-                    print(f"HR Team 2 in zone {self.zone}: ERROR: Could not find a return to marker with in alloted steps")
+                    print(
+                        f"HR Team 2 in zone {self.zone}: ERROR: Could not find a return to marker with in alloted steps"
+                    )
                     break
             m = self.find_markers(codes)
         return m
 
-    def drive_to_marker(self, code: int, dist: float = 0.3, power: int = 10, interval: float = 0.2, epsilon: int = 3, errors = 5):
-        """Drives straight towards a marker of the given code and stops a given distance away.
-        interval is the time between checking if the robot is facing the marker and driving.
+    def drive_to_marker(
+        self,
+        code: int,
+        dist: float = 0.3,
+        power: int = 10,
+        interval: float = 0.2,
+        epsilon: int = 3,
+        errors=5,
+    ):
+        """Drives straight towards a marker of the given code and stops a given
+        distance away.
+
+        interval is the time between checking if the robot is facing the
+        marker and driving.
         """
         lowered_cube = False
         tries = 0
@@ -267,14 +327,29 @@ class VirtualBot(Robot):
                 m = self.turn_to_marker(code, epsilon=epsilon)
             if m is None:
                 return m
-        print("HR Team 2 in zone", str(self.zone) + ":", self.right_distance, "right distance sensor")
-        print("HR Team 2 in zone", str(self.zone) + ":", self.left_distance, "left distance sensor")
-        while m.dist > dist and ((self.left_distance > dist and self.right_distance > dist) or dist >= 0.3):
-            print("HR Team 2 in zone", str(self.zone) + ":", self.right_distance, "right distance sensor")
-            print("HR Team 2 in zone", str(self.zone) + ":", self.left_distance, "left distance sensor")
+        print("HR Team 2 in zone",
+              str(self.zone) + ":", self.right_distance,
+              "right distance sensor")
+        print("HR Team 2 in zone",
+              str(self.zone) + ":", self.left_distance, "left distance sensor")
+        while m.dist > dist and (
+            (self.left_distance > dist and self.right_distance > dist)
+                or dist >= 0.3):
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                self.right_distance,
+                "right distance sensor",
+            )
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                self.left_distance,
+                "left distance sensor",
+            )
             self.setDriveMotors(power)
-            #self.sleep(interval)
-            #self.stopDriveMotors()
+            # self.sleep(interval)
+            # self.stopDriveMotors()
             self.seek_marker(code, 10, 20, 20)
             found = self.turn_to_marker(code, epsilon=epsilon)
             if found is None:
@@ -284,15 +359,31 @@ class VirtualBot(Robot):
             else:
                 tries = 0
                 m = found
-            print("HR Team 2 in zone", str(self.zone) + ":", m.dist, "m away is shortest known distance")
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                m.dist,
+                "m away is shortest known distance",
+            )
         self.stopDriveMotors()
         print(f"HR Team 2 in zone {self.zone}: Done, {m.dist}m away")
         self.direction = 0
         return m
 
-    def drive_to_markers(self, codes, dist: float = 0.3, power: int = 10, interval: float = 0.2, epsilon: int = 3, errors = 5):
-        """Drives straight towards a marker of the given code and stops a given distance away.
-        interval is the time between checking if the robot is facing the marker and driving.
+    def drive_to_markers(
+        self,
+        codes,
+        dist: float = 0.3,
+        power: int = 10,
+        interval: float = 0.2,
+        epsilon: int = 3,
+        errors=5,
+    ):
+        """Drives straight towards a marker of the given code and stops a given
+        distance away.
+
+        interval is the time between checking if the robot is facing the
+        marker and driving.
         """
         lowered_cube = False
         tries = 0
@@ -304,14 +395,29 @@ class VirtualBot(Robot):
                 m = self.turn_to_markers(codes, epsilon=epsilon)
             if m is None:
                 return m
-        print("HR Team 2 in zone", str(self.zone) + ":", self.right_distance, "right distance sensor")
-        print("HR Team 2 in zone", str(self.zone) + ":", self.left_distance, "left distance sensor")
-        while m.dist > dist and ((self.left_distance > dist and self.right_distance > dist) or dist >= 0.3):
-            print("HR Team 2 in zone", str(self.zone) + ":", self.right_distance, "right distance sensor")
-            print("HR Team 2 in zone", str(self.zone) + ":", self.left_distance, "left distance sensor")
+        print("HR Team 2 in zone",
+              str(self.zone) + ":", self.right_distance,
+              "right distance sensor")
+        print("HR Team 2 in zone",
+              str(self.zone) + ":", self.left_distance, "left distance sensor")
+        while m.dist > dist and (
+            (self.left_distance > dist and self.right_distance > dist)
+                or dist >= 0.3):
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                self.right_distance,
+                "right distance sensor",
+            )
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                self.left_distance,
+                "left distance sensor",
+            )
             self.setDriveMotors(power)
-            #self.sleep(interval)
-            #self.stopDriveMotors()
+            # self.sleep(interval)
+            # self.stopDriveMotors()
             self.seek_markers(codes, 10, 20, 20)
             found = self.turn_to_markers(codes, epsilon=epsilon)
             if found is None:
@@ -321,11 +427,17 @@ class VirtualBot(Robot):
             else:
                 tries = 0
                 m = found
-            print("HR Team 2 in zone", str(self.zone) + ":", m.dist, "m away is shortest known distance")
+            print(
+                "HR Team 2 in zone",
+                str(self.zone) + ":",
+                m.dist,
+                "m away is shortest known distance",
+            )
         self.stopDriveMotors()
         print(f"HR Team 2 in zone {self.zone}: Done, {m.dist}m away")
         self.direction = 0
         return m
+
 
 """Get to cubes"""
 R = VirtualBot()
