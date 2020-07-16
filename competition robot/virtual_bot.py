@@ -154,7 +154,7 @@ class VirtualBot(Robot):
                 return m
         return None
 
-    def turn_to_marker(self, code: int, epsilon: int = 2):
+    def turn_to_marker(self, code: int, dist, see, epsilon: int = 2):
         """Turns to the marker of the given code and returns its object.
         Returns None if the cube cannot be seen.
         Epsilon is the accuracy at which the robot should be facing the marker at.
@@ -166,8 +166,12 @@ class VirtualBot(Robot):
         times = 0
         while not (-epsilon < m.rot_y and m.rot_y < epsilon) and times < 20:
             self.direction = signum(m.rot_y)
-            self.turn(self.direction * (Sigmoid(8 * (abs(m.rot_y)/ self.largest_angle) - 4) * self.motor_turn_max)) 
+            value = self.direction * (Sigmoid(8 * (abs(m.rot_y)/ self.largest_angle) - 4) * self.motor_turn_max)
+            self.turn(value) 
             self.sleep(0.00125)
+            if see and m.dist < dist:
+                self.turn(-value)
+                self.sleep(0.00125)
             self.stopDriveMotors()
             self.setDriveMotors(10)
             self.sleep(0.001)
@@ -219,7 +223,7 @@ class VirtualBot(Robot):
         m = self.find_marker(code)
         while m is None:
             if self.direction != 0:
-                self.turn(power * -self.direction)
+                self.turn(power * self.direction)
             else:
                 self.turn(default_power)
             self.sleep(interval)
@@ -231,6 +235,8 @@ class VirtualBot(Robot):
                         f"HR Team 2 in zone {self.zone}: ERROR: Could not find marker {code} with in alloted steps")
                     break
             m = self.find_marker(code)
+        print(
+                        f"HR Team 2 in zone {self.zone}: Found marker {code} with in alloted steps")
         return
 
     def seek_markers(self, codes, power: int = 10, default_power: int = 10, repeats: int = None, interval: float = 0.02):
@@ -240,7 +246,7 @@ class VirtualBot(Robot):
         m = self.find_markers(codes)
         while m is None:
             if self.direction != 0:
-                self.turn(power * -self.direction)
+                self.turn(power * self.direction)
             else:
                 self.turn(power)
             self.sleep(interval)
@@ -251,6 +257,7 @@ class VirtualBot(Robot):
                     print(f"HR Team 2 in zone {self.zone}: ERROR: Could not find a return to marker with in alloted steps")
                     break
             m = self.find_markers(codes)
+        print(f"HR Team 2 in zone {self.zone}: Found a return to marker with in alloted steps")
         return m
 
     def drive_to_marker(self, code: int, dist: float = 0.3, power: int = 10, interval: float = 0.2, epsilon: int = 3, errors = 5):
@@ -259,12 +266,12 @@ class VirtualBot(Robot):
         """
         lowered_cube = False
         tries = 0
-        m = self.turn_to_marker(code, epsilon=epsilon)
+        m = self.turn_to_marker(code, 0.5, True, epsilon=epsilon)
         found = None
         if m is None:
             if self.have_cube and not lowered_cube:
                 self.lowerGripper()
-                m = self.turn_to_marker(code, epsilon=epsilon)
+                m = self.turn_to_marker(code, 0.5, True, epsilon=epsilon)
             if m is None:
                 return m
         print("HR Team 2 in zone", str(self.zone) + ":", self.right_distance, "right distance sensor")
@@ -276,7 +283,7 @@ class VirtualBot(Robot):
             #self.sleep(interval)
             #self.stopDriveMotors()
             self.seek_marker(code, 10, 20, 20)
-            found = self.turn_to_marker(code, epsilon=epsilon)
+            found = self.turn_to_marker(code, 0.5, True, epsilon=epsilon)
             if found is None:
                 tries += 1
                 if tries == errors:
