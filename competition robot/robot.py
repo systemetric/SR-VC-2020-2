@@ -29,16 +29,16 @@ while True and iteration < len(main_cubes[R.zone]):
     while not R.have_cube:
         R.seek_marker(target)
         R.drive_to_marker(target, 0.4, 80)
-        R.turn_to_marker(target)
+        R.turn_to_marker(target, 0.5, True)
         R.setDriveMotors(50)
         R.sleep(0.4)
         R.stopDriveMotors()
         R.closeGripper()
     if iteration < len(main_cubes[R.zone]) - 1:
         R.seek_markers(return_markers[R.zone], 10, 10)
-        R.drive_to_markers(return_markers[R.zone], 1.3, 80, 0.2, 3, 10)
+        R.drive_to_markers(return_markers[R.zone], 1.3, 80, 0.2, 3, 20)
         R.openGripper()
-        R.setDriveMotors(-40)
+        R.setDriveMotors(-60)
         R.sleep(0.2)
         R.stopDriveMotors()
     else:
