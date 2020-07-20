@@ -338,17 +338,20 @@ class VirtualBot(Robot):
             m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon)
         found = None
         if m is None:
+            self.seek_marker(code=code, power=10, default_power=10)
             if stop_when_close_when_turning:
                 m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon, stop_distance=dist)
             else:
                 m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon)
             if m is None:
+                self.seek_marker(code=code, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
                     m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon)
             if m is None and self.have_cube and not lowered_cube:
                 self.lowerGripper()
+                self.seek_marker(code=code, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_marker(code, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
@@ -393,17 +396,20 @@ class VirtualBot(Robot):
             m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon)
         found = None
         if m is None:
+            self.seek_markers(codes=codes, power=10, default_power=10)
             if stop_when_close_when_turning:
                 m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon, stop_distance=dist)
             else:
                 m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon)
             if m is None:
+                self.seek_markers(codes=codes, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
                     m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon)
             if m is None and self.have_cube and not lowered_cube:
                 self.lowerGripper()
+                self.seek_markers(codes=codes, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_markers(codes, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
@@ -448,17 +454,20 @@ class VirtualBot(Robot):
             m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon)
         found = None
         if m is None:
+            self.seek_markers_with_priority(priority=priority, less_important=less_important, power=10, default_power=10)
             if stop_when_close_when_turning:
                 m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon, stop_distance=dist)
             else:
                 m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon)
             if m is None:
+                self.seek_markers_with_priority(priority=priority, less_important=less_important, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
                     m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon)
             if m is None and self.have_cube and not lowered_cube:
                 self.lowerGripper()
+                self.seek_markers_with_priority(priority=priority, less_important=less_important, power=10, default_power=10)
                 if stop_when_close_when_turning:
                     m = self.turn_to_markers_with_priority(priority, less_important, 0.2, True, epsilon=epsilon, stop_distance=dist)
                 else:
